@@ -1,0 +1,46 @@
+cards:
+  - title: Attend a user group (1)
+    description: Attend a technical user group and learn something new
+  - title: Attend a user group (2)
+    description: Attend a technical user group and learn something new
+  - title: Book (1)
+    description: Read a technology or management related book
+  - title: Book (2)
+    description: Read a technology or management related book
+  - title: Book (3)
+    description: Read a technology or management related book
+  - title: Blog Post (1)
+    description: Write and publish a blog post
+  - title: Blog Post (2)
+    description: Write and publish a blog post
+  - title: Blog Post (3)
+    description: Write and publish a blog post
+  - title: Blog Post (4)
+    description: Write and publish a blog post
+  - title: Blog Post (5)
+    description: Write and publish a blog post
+  - title: Blog Post (6)
+    description: Write and publish a blog post
+  - title: Certification
+    description: Achieve a technical certificate
+  - title: Conference
+    description: Attend a technical conference to learn things and meet people
+  - title: Write OpenSource Code (1)
+    description: Write and release some Free Software. It can be contributing to an existing repo or creating a new one
+  - title: Write OpenSource Code (2)
+    description: Write and release some Free Software. It can be contributing to an existing repo or creating a new one
+  - title: Wildcard (1)
+    description: Do something of interest that doesn't fit into the above categories
+  - title: Wildcard (2)
+    description: Do something of interest that doesn't fit into the above categories
+  - title: Wildcard (3)
+    description: Do something of interest that doesn't fit into the above categories
+  - title: Wildcard (4)
+    description: Do something of interest that doesn't fit into the above categories
+  - title: Wildcard (5)
+    description: Do something of interest that doesn't fit into the above categories
+  - title: Wildcard (6)
+    description: Do something of interest that doesn't fit into the above categories
+  - title: Blog Post (2)
+    description: Write and publish a blog post
+

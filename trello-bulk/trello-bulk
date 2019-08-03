@@ -1,0 +1,74 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+require 'trello'
+require 'yaml'
+
+def _get_ids(user_handle, options)
+  id = {}
+
+  # Get all open boards
+  boards = user_handle.boards.reject(&:closed)
+  board = boards.select { |b| b.name == options[:board] }
+  id['board'] = board[0].id # Assume name is unique so take the first match
+
+  lists = Trello::Board.find(id['board']).lists
+  list = lists.select { |l| l.name == options[:list] }
+  id['list'] = list[0].id # Assume name is unique so take the first match
+
+  id
+end
+
+def load_cards(card_set)
+  yaml = YAML.safe_load(File.read(card_set))
+
+  yaml['cards']
+end
+
+app_name = File.basename $PROGRAM_NAME
+
+Trello.configure do |config|
+  config.developer_public_key = ENV['TRELLO_DEVELOPER_PUBLIC_KEY']
+  config.member_token = ENV['TRELLO_MEMBER_TOKEN']
+end
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{app_name} --user dwilson --board 'Testy Board' --list TODO --cards card-sets/pip.yaml"
+
+  opts.on('-u USER', '--user USER', 'Trello username that owns the boards') do |v|
+    options[:user] = v
+  end
+
+  opts.on('-b BOARD', '--board BOARD', 'Trello board name') do |v|
+    options[:board] = v
+  end
+
+  opts.on('-l LIST', '--list LIST', 'Trello list / column name') do |v|
+    options[:list] = v
+  end
+
+  opts.on('-c CARD_FILE', '--cards CARD_FILE', 'YAML file containing the cards to create') do |v|
+    options[:cards] = v
+  end
+end.parse!
+
+user = Trello::Member.find(options[:user])
+
+trello_ids = _get_ids(user, options)
+
+cards = load_cards(options[:cards])
+
+# Sort the cards by title and then reverse them, this way the first card title
+# alphabetically is added last, but then shows up in the UI first.
+cards.sort_by! { |c| c['title'] }
+cards.reverse!
+
+cards.each do |card|
+  Trello::Card.create(
+    list_id: trello_ids['list'],
+    name: card['title'],
+    desc: card['description']
+  )
+end
