@@ -46,7 +46,16 @@ def load_cards(card_set)
   yaml['cards']
 end
 
+##############################################################
+
 APP_NAME = File.basename $PROGRAM_NAME
+
+%w[TRELLO_DEVELOPER_PUBLIC_KEY TRELLO_MEMBER_TOKEN].each do |variable|
+  unless ENV.key? variable
+    warn "#{APP_NAME} requires #{variable} to be set"
+    exit 1
+  end
+end
 
 Trello.configure do |config|
   config.developer_public_key = ENV['TRELLO_DEVELOPER_PUBLIC_KEY']
