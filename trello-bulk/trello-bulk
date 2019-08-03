@@ -31,7 +31,17 @@ def _get_ids(user_handle, options)
 end
 
 def load_cards(card_set)
-  yaml = YAML.safe_load(File.read(card_set))
+  unless File.exist? card_set
+    warn "#{APP_NAME}: Failed to find `#{card_set}`"
+    exit 1
+  end
+
+  begin
+    yaml = YAML.safe_load(File.read(card_set))
+  rescue Psych::SyntaxError => e
+    warn "#{APP_NAME}: Failed to load YAML from `#{card_set}`: #{e.inspect}"
+    exit 1
+  end
 
   yaml['cards']
 end
