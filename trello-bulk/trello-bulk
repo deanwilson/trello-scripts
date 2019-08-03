@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'date'
+require 'time'
 require 'ostruct'
 require 'optparse'
 require 'trello'
@@ -54,7 +54,28 @@ def load_cards(card_set)
     exit 1
   end
 
-  yaml['cards']
+  expand_cards(yaml['cards'])
+end
+
+def expand_cards(cards)
+  expanded_cards = []
+
+  cards.each do |card|
+    expanded = OpenStruct.new
+
+    # Allow future due dates, relative to when this script is run
+    if card.key? 'due'
+      future_date = Date.today + card['due'] # set the due date in the future
+      expanded.due_date = future_date.to_time.iso8601 # convert to ruby-trello required format
+    end
+
+    expanded.description = card['description']
+    expanded.title       = card['title']
+
+    expanded_cards << expanded
+  end
+
+  expanded_cards
 end
 
 ##############################################################
@@ -92,6 +113,10 @@ OptionParser.new do |opts|
   opts.on('-c CARD_FILE', '--cards CARD_FILE', 'YAML file containing the cards to create') do |v|
     options[:cards] = v
   end
+
+  opts.on('-r REPLACE', '--replace REPLACE', 'Text to replace in the cardset. Given in the format `original==replacement`') do |v|
+    options[:replace] = v
+  end
 end.parse!
 
 # Do the local actions before calling the Trello API
@@ -99,23 +124,28 @@ cards = load_cards(options[:cards])
 
 user = Trello::Member.find(options[:user])
 
+## Expand the text in the cards
+if options[:replace]
+  original, replacement = options[:replace].split('==')
+
+  cards.each do |card|
+    card.title.gsub!(/#{original}/, replacement)
+    card.description.gsub!(/#{original}/, replacement)
+  end
+end
+
 trello_ids = _get_ids(user, options)
 
 # Sort the cards by title and then reverse them, this way the first card title
 # alphabetically is added last, but then shows up in the UI first.
-cards.sort_by! { |c| c['title'] }
+cards.sort_by!(&:title)
 cards.reverse!
 
 cards.each do |card|
-  if card.key? 'due'
-    future_date = Date.today + card['due'] # set the due date in the future
-    card['due_date'] = future_date.to_time.iso8601 # convert to ruby-trello required format
-  end
-
   Trello::Card.create(
     list_id: trello_ids.list,
-    name: card['title'],
-    desc: card['description'],
-    due: card.fetch('due_date', nil)
+    name: card.title,
+    desc: card.description,
+    due: card.due_date
   )
 end

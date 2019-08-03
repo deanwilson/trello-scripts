@@ -42,6 +42,29 @@ It's possible to specify relative due dates in the card set with the addition of
 This is currently quite a blunt approach that does not allow specifying times or
 any interval other than whole days.
 
+### Namespacing / Making card contents less static
+
+`trello-bulk` has very basic support for templating a literal string in the
+title and description fields of the cards. This allows you to easily
+substitute details like a project name, incident ID or system title. You
+invoke this substitution from the command line with the `--replace`
+argument and two `==` separated strings:
+
+    --replace 'ORIGINAL_TEXT==REPLACEMENT_TEXT'
+
+    --replace '%%incident_id%%==Orders_incident 004'
+
+And add the `ORIGINAL_TEXT` in your card set where ever you would like the
+replacement to happen.
+
+    > cat card-sets/replaceable-things.yaml
+    cards:
+      - title: "Initiate incident report for %%incident_id%%"
+        description: "We should have an incident report for %%incident_id%%"
+
+The code internally uses `==` as the separator so avoid that in the text
+arguments given to the `--replace` option.
+
 ### Author
 
   [Dean Wilson](https://www.unixdaemon.net)

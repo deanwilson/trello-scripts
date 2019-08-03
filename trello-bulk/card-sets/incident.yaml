@@ -1,0 +1,9 @@
+cards:
+  - title: "Initiate incident report for %%incident_id%%"
+    description: "We start an incident report for %%incident_id%%"
+  - title: "Review %%incident_id%%"
+    description: "Review %%incident_id%% as a team"
+    due: +2
+  - title: "Publish incident report %%incident_id%%"
+    description: "Document the incident, the review and the resolution"
+    due: +4
