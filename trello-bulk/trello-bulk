@@ -113,12 +113,26 @@ OptionParser.new do |opts|
   opts.on('-c CARD_FILE', '--cards CARD_FILE', 'YAML file containing the cards to create') do |v|
     options[:cards] = v
   end
+
+  opts.on('-r REPLACE', '--replace REPLACE', 'Text to replace in the cardset. Given in the format `original==replacement`') do |v|
+    options[:replace] = v
+  end
 end.parse!
 
 # Do the local actions before calling the Trello API
 cards = load_cards(options[:cards])
 
 user = Trello::Member.find(options[:user])
+
+## Expand the text in the cards
+if options[:replace]
+  original, replacement = options[:replace].split('==')
+
+  cards.each do |card|
+    card.title.gsub!(/#{original}/, replacement)
+    card.description.gsub!(/#{original}/, replacement)
+  end
+end
 
 trello_ids = _get_ids(user, options)
 
