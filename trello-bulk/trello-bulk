@@ -6,17 +6,26 @@ require 'optparse'
 require 'trello'
 require 'yaml'
 
+def _get_board_id(boards, board_name)
+  # Get all open boards
+  open_boards = boards.reject(&:closed)
+  board = open_boards.select { |b| b.name == board_name }
+
+  board[0].id # Assume name is unique so take the first match
+end
+
+def _get_list_id(board_id, list_name)
+  lists = Trello::Board.find(board_id).lists
+  list = lists.select { |l| l.name == list_name }
+
+  list[0].id # Assume name is unique so take the first match
+end
+
 def _get_ids(user_handle, options)
   id = OpenStruct.new
 
-  # Get all open boards
-  boards = user_handle.boards.reject(&:closed)
-  board = boards.select { |b| b.name == options[:board] }
-  id.board = board[0].id # Assume name is unique so take the first match
-
-  lists = Trello::Board.find(id.board).lists
-  list = lists.select { |l| l.name == options[:list] }
-  id.list = list[0].id # Assume name is unique so take the first match
+  id.board = _get_board_id(user_handle.boards, options[:board])
+  id.list  = _get_list_id(id.board, options[:list])
 
   id
 end
