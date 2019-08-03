@@ -1,21 +1,22 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'ostruct'
 require 'optparse'
 require 'trello'
 require 'yaml'
 
 def _get_ids(user_handle, options)
-  id = {}
+  id = OpenStruct.new
 
   # Get all open boards
   boards = user_handle.boards.reject(&:closed)
   board = boards.select { |b| b.name == options[:board] }
-  id['board'] = board[0].id # Assume name is unique so take the first match
+  id.board = board[0].id # Assume name is unique so take the first match
 
-  lists = Trello::Board.find(id['board']).lists
+  lists = Trello::Board.find(id.board).lists
   list = lists.select { |l| l.name == options[:list] }
-  id['list'] = list[0].id # Assume name is unique so take the first match
+  id.list = list[0].id # Assume name is unique so take the first match
 
   id
 end
@@ -67,7 +68,7 @@ cards.reverse!
 
 cards.each do |card|
   Trello::Card.create(
-    list_id: trello_ids['list'],
+    list_id: trello_ids.list,
     name: card['title'],
     desc: card['description']
   )
