@@ -11,12 +11,22 @@ def _get_board_id(boards, board_name)
   open_boards = boards.reject(&:closed)
   board = open_boards.select { |b| b.name == board_name }
 
+  if board.empty?
+    warn "#{APP_NAME}: failed to find a board named `#{board_name}`"
+    exit 1
+  end
+
   board[0].id # Assume name is unique so take the first match
 end
 
 def _get_list_id(board_id, list_name)
   lists = Trello::Board.find(board_id).lists
   list = lists.select { |l| l.name == list_name }
+
+  if list.empty?
+    warn "#{APP_NAME}: failed to find a list named `#{list_name}`"
+    exit 1
+  end
 
   list[0].id # Assume name is unique so take the first match
 end
