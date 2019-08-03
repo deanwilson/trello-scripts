@@ -1,32 +1,71 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'ostruct'
 require 'optparse'
 require 'trello'
 require 'yaml'
 
-def _get_ids(user_handle, options)
-  id = {}
-
+def _get_board_id(boards, board_name)
   # Get all open boards
-  boards = user_handle.boards.reject(&:closed)
-  board = boards.select { |b| b.name == options[:board] }
-  id['board'] = board[0].id # Assume name is unique so take the first match
+  open_boards = boards.reject(&:closed)
+  board = open_boards.select { |b| b.name == board_name }
 
-  lists = Trello::Board.find(id['board']).lists
-  list = lists.select { |l| l.name == options[:list] }
-  id['list'] = list[0].id # Assume name is unique so take the first match
+  if board.empty?
+    warn "#{APP_NAME}: failed to find a board named `#{board_name}`"
+    exit 1
+  end
+
+  board[0].id # Assume name is unique so take the first match
+end
+
+def _get_list_id(board_id, list_name)
+  lists = Trello::Board.find(board_id).lists
+  list = lists.select { |l| l.name == list_name }
+
+  if list.empty?
+    warn "#{APP_NAME}: failed to find a list named `#{list_name}`"
+    exit 1
+  end
+
+  list[0].id # Assume name is unique so take the first match
+end
+
+def _get_ids(user_handle, options)
+  id = OpenStruct.new
+
+  id.board = _get_board_id(user_handle.boards, options[:board])
+  id.list  = _get_list_id(id.board, options[:list])
 
   id
 end
 
 def load_cards(card_set)
-  yaml = YAML.safe_load(File.read(card_set))
+  unless File.exist? card_set
+    warn "#{APP_NAME}: Failed to find `#{card_set}`"
+    exit 1
+  end
+
+  begin
+    yaml = YAML.safe_load(File.read(card_set))
+  rescue Psych::SyntaxError => e
+    warn "#{APP_NAME}: Failed to load YAML from `#{card_set}`: #{e.inspect}"
+    exit 1
+  end
 
   yaml['cards']
 end
 
-app_name = File.basename $PROGRAM_NAME
+##############################################################
+
+APP_NAME = File.basename $PROGRAM_NAME
+
+%w[TRELLO_DEVELOPER_PUBLIC_KEY TRELLO_MEMBER_TOKEN].each do |variable|
+  unless ENV.key? variable
+    warn "#{APP_NAME} requires #{variable} to be set"
+    exit 1
+  end
+end
 
 Trello.configure do |config|
   config.developer_public_key = ENV['TRELLO_DEVELOPER_PUBLIC_KEY']
@@ -35,7 +74,7 @@ end
 
 options = {}
 OptionParser.new do |opts|
-  opts.banner = "Usage: #{app_name} --user dwilson --board 'Testy Board' --list TODO --cards card-sets/pip.yaml"
+  opts.banner = "Usage: #{APP_NAME} --user dwilson --board 'Testy Board' --list TODO --cards card-sets/pip.yaml"
 
   opts.on('-u USER', '--user USER', 'Trello username that owns the boards') do |v|
     options[:user] = v
@@ -54,11 +93,12 @@ OptionParser.new do |opts|
   end
 end.parse!
 
+# Do the local actions before calling the Trello API
+cards = load_cards(options[:cards])
+
 user = Trello::Member.find(options[:user])
 
 trello_ids = _get_ids(user, options)
-
-cards = load_cards(options[:cards])
 
 # Sort the cards by title and then reverse them, this way the first card title
 # alphabetically is added last, but then shows up in the UI first.
@@ -67,7 +107,7 @@ cards.reverse!
 
 cards.each do |card|
   Trello::Card.create(
-    list_id: trello_ids['list'],
+    list_id: trello_ids.list,
     name: card['title'],
     desc: card['description']
   )
