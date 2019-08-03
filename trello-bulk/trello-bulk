@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'date'
 require 'ostruct'
 require 'optparse'
 require 'trello'
@@ -106,9 +107,15 @@ cards.sort_by! { |c| c['title'] }
 cards.reverse!
 
 cards.each do |card|
+  if card.key? 'due'
+    future_date = Date.today + card['due'] # set the due date in the future
+    card['due_date'] = future_date.to_time.iso8601 # convert to ruby-trello required format
+  end
+
   Trello::Card.create(
     list_id: trello_ids.list,
     name: card['title'],
-    desc: card['description']
+    desc: card['description'],
+    due: card.fetch('due_date', nil)
   )
 end
