@@ -22,7 +22,7 @@ link.
 ### Card sets
 
 Each card set should be a valid YAML document containing an array of cards, each
-with a title and description. This repo contains
+with a title, description and one or more checklists of items. This repo contains
 [example card sets](/trello-bulk/card-sets/)
 
 ### Due Dates

@@ -1,0 +1,9 @@
+cards:
+  - title: Attend a user group (1) - tiny
+    description: "Attend a technical user group and learn something new about %%namespace%%"
+    checklists:
+      "Register":      
+        - Sign up
+        - Add to calendar
+      "Post event":
+        - "Write blog post"
