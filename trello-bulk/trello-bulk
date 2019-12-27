@@ -71,6 +71,12 @@ def expand_cards(cards)
 
     expanded.description = card['description']
     expanded.title       = card['title']
+    expanded.checklists  = []
+
+    # allow multiple checklists to be assigned to a card
+    card.fetch("checklists", []).each do |checklist|
+      expanded.checklists << { checklist[0] => checklist[1] }
+    end
 
     expanded_cards << expanded
   end
@@ -142,10 +148,24 @@ cards.sort_by!(&:title)
 cards.reverse!
 
 cards.each do |card|
-  Trello::Card.create(
+  created_card = Trello::Card.create(
     list_id: trello_ids.list,
     name: card.title,
     desc: card.description,
     due: card.due_date
   )
+
+  card.checklists.each do |checklist|
+     name = checklist.keys[0]
+     items = checklist[name]
+
+    trello_list = Trello::Checklist.create(
+      card_id: created_card.id,
+      name: name,
+    )
+
+    items.each do |item|
+      trello_list.add_item(item)
+    end
+  end
 end
