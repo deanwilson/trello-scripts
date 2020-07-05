@@ -1,0 +1,4 @@
+LineLength:
+  Enabled: false
+Style/FrozenStringLiteralComment:
+  Enabled: false
