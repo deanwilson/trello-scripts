@@ -57,6 +57,7 @@ def load_cards(card_set)
   expand_cards(yaml['cards'])
 end
 
+# rubocop:disable Metrics/AbcSize
 def expand_cards(cards)
   expanded_cards = []
 
@@ -74,7 +75,7 @@ def expand_cards(cards)
     expanded.checklists  = []
 
     # allow multiple checklists to be assigned to a card
-    card.fetch("checklists", []).each do |checklist|
+    card.fetch('checklists', []).each do |checklist|
       expanded.checklists << { checklist[0] => checklist[1] }
     end
 
@@ -83,6 +84,7 @@ def expand_cards(cards)
 
   expanded_cards
 end
+# rubocop:enable Metrics/AbcSize
 
 ##############################################################
 
@@ -156,12 +158,12 @@ cards.each do |card|
   )
 
   card.checklists.each do |checklist|
-     name = checklist.keys[0]
-     items = checklist[name]
+    name = checklist.keys[0]
+    items = checklist[name]
 
     trello_list = Trello::Checklist.create(
       card_id: created_card.id,
-      name: name,
+      name: name
     )
 
     items.each do |item|
