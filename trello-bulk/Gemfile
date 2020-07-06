@@ -1,4 +1,4 @@
 source 'https://rubygems.org'
 
-gem 'ruby-trello', '2.1.0'
 gem 'rubocop', '~> 0.86.0', require: false
+gem 'ruby-trello', '2.1.0'
