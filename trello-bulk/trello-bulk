@@ -57,7 +57,6 @@ def load_cards(card_set)
   expand_cards(yaml['cards'])
 end
 
-# rubocop:disable Metrics/AbcSize
 def expand_cards(cards)
   expanded_cards = []
 
@@ -84,7 +83,6 @@ def expand_cards(cards)
 
   expanded_cards
 end
-# rubocop:enable Metrics/AbcSize
 
 ##############################################################
 
@@ -122,7 +120,8 @@ OptionParser.new do |opts|
     options[:cards] = v
   end
 
-  opts.on('-r REPLACE', '--replace REPLACE', 'Text to replace in the cardset. Given in the format `original==replacement`') do |v|
+  opts.on('-r REPLACE', '--replace REPLACE',
+          'Text to replace in the cardset. Given in the format `original==replacement`') do |v|
     options[:replace] = v
   end
 end.parse!
@@ -152,9 +151,9 @@ cards.reverse!
 cards.each do |card|
   created_card = Trello::Card.create(
     list_id: trello_ids.list,
-    name: card.title,
-    desc: card.description,
-    due: card.due_date
+    name:    card.title,
+    desc:    card.description,
+    due:     card.due_date
   )
 
   card.checklists.each do |checklist|
@@ -163,7 +162,7 @@ cards.each do |card|
 
     trello_list = Trello::Checklist.create(
       card_id: created_card.id,
-      name: name
+      name:    name
     )
 
     items.each do |item|
