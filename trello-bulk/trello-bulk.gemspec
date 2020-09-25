@@ -10,5 +10,7 @@ Gem::Specification.new do |spec|
   spec.bindir        = '.'
   spec.executables   = 'trello-bulk'
 
+  spec.required_ruby_version = '>= 2.6.0'
+
   spec.add_runtime_dependency 'ruby-trello', '~> 2.1', '>= 2.1.0'
 end
