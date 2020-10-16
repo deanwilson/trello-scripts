@@ -4,7 +4,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Dean Wilson']
   spec.email         = ['dwilson@unixdaemon.net']
   spec.summary       = 'A trello bulk card creator.'
-  spec.homepage      = 'https://github.com/deanwilson/trello-scripts/tree/master/trello-bulk'
+  spec.homepage      = 'https://github.com/deanwilson/trello-scripts/tree/main/trello-bulk'
   spec.license       = 'GPL-2.0'
 
   spec.bindir        = '.'
