@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'ruby-trello', '2.3.1'
+gem 'ruby-trello', '3.0.0'
 
 group :development, :test do
   gem 'rake', '~> 13.0.0'
